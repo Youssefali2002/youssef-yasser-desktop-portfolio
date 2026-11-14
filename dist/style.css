@@ -147,8 +147,8 @@ dialog::backdrop { background: #141b4e9e; backdrop-filter: blur(4px); }
   .desktop-files, .desktop-caption { display: none; }
 }
 @media (max-width: 740px) {
-  .desktop { padding: 12px 10px 12px; gap: 10px; }
-  .window { height: max(450px,calc(100svh - 145px)); grid-template-rows: 45px minmax(0,1fr) 26px; }
+  .desktop { padding: 16px 14px 14px; gap: 14px; }
+  .window { height: max(450px,calc(100svh - 176px)); grid-template-rows: 45px minmax(0,1fr) 26px; }
   .window.is-expanded { inset: 2px 4px 80px; }
   .workspace { grid-template-columns: minmax(0,1fr); }
   .sidebar { display: none; }

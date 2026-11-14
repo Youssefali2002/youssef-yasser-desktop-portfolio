@@ -15,31 +15,59 @@ if (context) {
   let stars = [];
   let frame = 0;
   let previous = 0;
-  const pointer = { x: 0, y: 0, time: -Infinity };
+  const trail = [];
+  const trailLife = 850;
   const random = (min, max) => min + Math.random() * (max - min);
 
   function draw(now) {
     const reduced = motion.matches;
     const elapsed = previous ? Math.min((now - previous) / 1000, .034) : 1 / 60;
     previous = now;
-    const following = 1 - Math.exp(-elapsed * 7);
-    const reach = Math.min(310, width * .62);
-    const intensity = reduced ? 0 : Math.max(0, 1 - (now - pointer.time) / 1150);
+    const following = 1 - Math.exp(-elapsed * 18);
+    const reach = Math.min(360, width * .74);
+    const waves = reduced ? [] : trail
+      .map(point => ({ ...point, age: (now - point.time) / trailLife }))
+      .filter(point => point.age < 1);
+    const head = waves.at(-1);
     const palette = colors[desktop.dataset.theme] ?? colors.blue;
-    let moving = intensity > 0;
+    let moving = waves.length > 0;
     context.clearRect(0, 0, width, height);
     context.lineCap = 'round';
+    if (head) {
+      const radius = reach * .68;
+      const halo = context.createRadialGradient(head.x, head.y, 0, head.x, head.y, radius);
+      halo.addColorStop(0, palette[1]);
+      halo.addColorStop(1, palette[1] + '00');
+      context.fillStyle = halo;
+      context.globalAlpha = .15 * (1 - head.age);
+      context.fillRect(head.x - radius, head.y - radius, radius * 2, radius * 2);
+    }
 
     for (const star of stars) {
-      const dx = star.x - pointer.x;
-      const dy = star.y - pointer.y;
-      const distance = Math.hypot(dx, dy);
-      const strength = Math.max(0, 1 - distance / reach) ** 1.7 * intensity;
-      const angle = strength * 1.7;
+      let dx = 0;
+      let dy = 0;
+      let distance = 0;
+      let strength = 0;
+      let age = 0;
+      for (const wave of waves) {
+        const waveX = star.x - wave.x;
+        const waveY = star.y - wave.y;
+        const distanceSquared = waveX * waveX + waveY * waveY;
+        if (distanceSquared >= reach * reach) continue;
+        const waveDistance = Math.sqrt(distanceSquared);
+        const influence = (1 - waveDistance / reach) ** 1.45 * (1 - wave.age) ** 2;
+        if (influence <= strength) continue;
+        dx = waveX;
+        dy = waveY;
+        distance = waveDistance;
+        strength = influence;
+        age = wave.age;
+      }
+      const angle = strength * 2.4;
       const cosine = Math.cos(angle);
       const sine = Math.sin(angle) * star.orbit;
-      const ripple = strength * 27 * Math.sin(distance * .065 - now * .006);
-      const scale = 1 + ripple / Math.max(distance, 18);
+      const ripple = strength * (31 + 52 * Math.sin(distance * .056 - age * 14));
+      const scale = Math.max(.22, 1 + ripple / Math.max(distance, 24));
       const targetX = (dx * cosine - dy * sine) * scale - dx;
       const targetY = (dx * sine + dy * cosine) * scale - dy;
 
@@ -49,13 +77,13 @@ if (context) {
 
       const x = star.x + star.offsetX;
       const y = star.y + star.offsetY;
-      const length = star.length + strength * 8;
-      const direction = star.angle + angle + strength * Math.atan2(dy, dx);
+      const length = star.length + strength * 15;
+      const direction = star.angle * (1 - strength) + (Math.atan2(dy, dx) + angle + Math.PI / 2) * strength;
       const endX = Math.cos(direction) * length;
       const endY = Math.sin(direction) * length;
-      context.globalAlpha = Math.min(.92, star.opacity + strength * .58);
+      context.globalAlpha = Math.min(.99, star.opacity + strength * .86);
       context.strokeStyle = palette[star.color];
-      context.lineWidth = star.weight;
+      context.lineWidth = star.weight + strength * .9;
       context.beginPath();
       context.moveTo(x - endX * .5, y - endY * .5);
       context.lineTo(x + endX * .5, y + endY * .5);
@@ -80,16 +108,16 @@ if (context) {
     canvas.width = Math.ceil(width * pixelRatio);
     canvas.height = Math.ceil(height * pixelRatio);
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    const spacing = width < 740 ? 21 : 29;
+    const spacing = Math.max(width < 740 ? 15 : 22, Math.sqrt(width * height / 3200));
     stars = [];
     for (let y = spacing / 2; y < height; y += spacing) {
       for (let x = spacing / 2; x < width; x += spacing) {
         stars.push({
           x: x + random(-spacing * .45, spacing * .45),
           y: y + random(-spacing * .45, spacing * .45),
-          length: random(.45, 2.4),
-          weight: random(.8, 1.7),
-          opacity: random(.23, .6),
+          length: random(.75, 3.1),
+          weight: random(.9, 1.85),
+          opacity: random(.32, .72),
           color: Math.floor(random(0, 4)),
           angle: random(0, Math.PI),
           orbit: y > height * .48 ? 1 : -1,
@@ -98,23 +126,35 @@ if (context) {
         });
       }
     }
-    pointer.time = -Infinity;
+    trail.length = 0;
     refresh();
   }
 
-  function trackPointer(event) {
+  function trackPointer(clientX, clientY) {
     if (motion.matches) return;
     const bounds = desktop.getBoundingClientRect();
-    pointer.x = event.clientX - bounds.left;
-    pointer.y = event.clientY - bounds.top;
-    pointer.time = performance.now();
+    const x = clientX - bounds.left;
+    const y = clientY - bounds.top;
+    const time = performance.now();
+    const last = trail.at(-1);
+    if (last && Math.hypot(last.x - x, last.y - y) < 32 && time - last.time < 60) {
+      Object.assign(last, { x, y, time });
+    } else {
+      trail.push({ x, y, time });
+      if (trail.length > 7) trail.shift();
+    }
     if (!frame) refresh();
   }
 
   desktop.addEventListener('pointermove', event => {
-    if (event.pointerType !== 'touch') trackPointer(event);
+    if (event.pointerType !== 'touch') trackPointer(event.clientX, event.clientY);
   }, { passive: true });
-  desktop.addEventListener('pointerdown', trackPointer, { passive: true });
+  function trackTouch(event) {
+    const touch = event.touches[0];
+    if (touch) trackPointer(touch.clientX, touch.clientY);
+  }
+  desktop.addEventListener('touchstart', trackTouch, { passive: true });
+  desktop.addEventListener('touchmove', trackTouch, { passive: true });
   new ResizeObserver(resize).observe(desktop);
   new MutationObserver(refresh).observe(desktop, { attributes: true, attributeFilter: ['data-theme'] });
   motion.addEventListener('change', refresh);
