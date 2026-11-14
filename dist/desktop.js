@@ -87,6 +87,7 @@ const skillGroups = [
 
 const finder = document.querySelector('#finder');
 const desktop = document.querySelector('.desktop');
+const wallpaper = desktop.querySelector('.wallpaper');
 const titlebar = document.querySelector('.titlebar');
 const pane = document.querySelector('#pane');
 const back = document.querySelector('#back');
@@ -111,7 +112,7 @@ function projectsPage() {
 }
 
 function projectPage(project) {
-  return '<div class="pane-hero project-hero"><p class="detail-label">' + project.category + '</p><h1>' + project.name + '</h1></div>' +
+  return '<div class="pane-hero"><p class="detail-label">' + project.category + '</p><h1>' + project.name + '</h1></div>' +
     '<div class="details-text"><p>' + project.summary + '</p>' +
     (project.points ? '<ul>' + project.points.map(point => '<li>' + point + '</li>').join('') + '</ul>' : '') + '</div>' +
     tags(project.stack) + links(project.links) +
@@ -196,6 +197,22 @@ function prepareGamePlayer() {
   });
 }
 
+let projectOpening;
+
+function showProjectAura(opening) {
+  const bounds = wallpaper.getBoundingClientRect();
+  const x = Math.max(0, Math.min(bounds.width, opening.x - bounds.left));
+  const y = Math.max(0, Math.min(bounds.height, opening.y - bounds.top));
+  const radius = Math.hypot(Math.max(x, bounds.width - x), Math.max(y, bounds.height - y));
+  const aura = document.createElement('div');
+  aura.className = 'project-aura';
+  aura.style.left = x + 'px';
+  aura.style.top = y + 'px';
+  aura.style.width = radius * 2 + 'px';
+  wallpaper.replaceChildren(aura);
+  aura.addEventListener('animationend', () => aura.remove(), { once: true });
+}
+
 function render(focus = false) {
   const route = location.hash.slice(1);
   const project = projectMap.get(route);
@@ -203,6 +220,11 @@ function render(focus = false) {
   const name = project?.name ?? sections[section];
   finder.hidden = false;
   desktop.dataset.theme = project?.theme ?? 'blue';
+  wallpaper.replaceChildren();
+  if (project && projectOpening?.route === route && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    showProjectAura(projectOpening);
+  }
+  projectOpening = undefined;
   document.querySelector('#path-name').textContent = name;
   document.title = section === 'projects' && !project ? 'Youssef Yasser Portfolio' : name + ' | Youssef Yasser Portfolio';
   document.querySelector('#status').textContent = project ? project.category : section === 'projects' ? allProjects.length + ' projects' : name;
@@ -223,6 +245,16 @@ function render(focus = false) {
 function go(route) {
   if (location.hash === '#' + route) render(true);
   else location.hash = route;
+}
+
+function openProject(route, trigger, event) {
+  const bounds = trigger.getBoundingClientRect();
+  projectOpening = {
+    route,
+    x: event.detail ? event.clientX : bounds.left + bounds.width / 2,
+    y: event.detail ? event.clientY : bounds.top + bounds.height / 2
+  };
+  go(route);
 }
 
 function toggleExpanded(expanded) {
@@ -286,6 +318,8 @@ document.addEventListener('click', event => {
   const image = event.target.closest('[data-image]');
   if (route?.closest('.desktop-files') && event.detail > 0 && event.pointerType !== 'touch') {
     document.querySelectorAll('.desktop-files button').forEach(button => button.setAttribute('aria-pressed', String(button === route)));
+  } else if (route && projectMap.has(route.dataset.route)) {
+    openProject(route.dataset.route, route, event);
   } else if (route) go(route.dataset.route);
   if (action?.dataset.action === 'search') openSearch();
   if (action?.dataset.action === 'dismiss') action.closest('dialog').close();
@@ -306,18 +340,21 @@ document.addEventListener('click', event => {
     imageViewer.querySelector('h2').textContent = image.dataset.caption;
     imageViewer.showModal();
   }
-  const searchLink = event.target.closest('#search-results a');
-  if (searchLink) {
+  const projectLink = event.target.closest('#pane a[href^="#"], #search-results a[href^="#"]');
+  if (projectLink && projectMap.has(projectLink.hash.slice(1)) &&
+      !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
     event.preventDefault();
-    search.close();
-    go(searchLink.hash.slice(1));
+    openProject(projectLink.hash.slice(1), projectLink, event);
+    if (search.open) search.close();
   }
   const activeLink = event.target.closest('.brand, [data-tab]');
   if (activeLink?.hash === location.hash && finder.hidden) render(true);
 });
 document.querySelector('.desktop-files').addEventListener('dblclick', event => {
   const folderButton = event.target.closest('[data-route]');
-  if (folderButton) go(folderButton.dataset.route);
+  if (folderButton && projectMap.has(folderButton.dataset.route)) {
+    openProject(folderButton.dataset.route, folderButton, event);
+  } else if (folderButton) go(folderButton.dataset.route);
 });
 document.addEventListener('keydown', event => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !imageViewer.open) {
