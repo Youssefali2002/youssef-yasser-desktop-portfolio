@@ -116,8 +116,10 @@ const pagesBySection = {
     '<div class="linkbar"><a href="#storm-core">Play Storm Core <span aria-hidden="true">&nbsp;›</span></a></div></div></section>' +
     '<div class="section-heading"><h2>More games</h2></div><div class="project-list">' +
     ['vanilla-wordle-clone', 'hangman-game'].map(id => fileRow(projectMap.get(id))).join('') + '</div>',
-  'storm-core': () => '<div class="game-navigation"><a href="#games">‹ All games</a><h1>Storm Core</h1></div>' +
-    '<iframe class="game-frame" src="./games/storm-core/" title="Play Storm Core" allow="fullscreen"></iframe>',
+  'storm-core': () => '<dialog class="game-player" open aria-labelledby="game-title"><div class="game-stage">' +
+    '<div class="game-navigation"><a href="#games">‹ Back to Games</a><h1 id="game-title">Storm Core</h1>' +
+    '<button type="button" class="game-fullscreen" aria-pressed="false">Full Screen</button></div>' +
+    '<iframe class="game-frame" src="./games/storm-core/" title="Play Storm Core"></iframe></div></dialog>',
   skills: () => '<div class="pane-hero"><h1>Tech Stack</h1><p>Tools I use to build interfaces, APIs, data workflows, and automated tests.</p></div><div class="info-grid">' +
     skillGroups.map(([name, items]) => '<section class="info"><h2>' + name + '</h2>' + tags(items) + '</section>').join('') + '</div>',
   about: () => '<div class="pane-hero"><h1>Youssef Yasser Ismail</h1><p>Full-Stack Software Engineer · Cairo, Egypt</p></div>' +
@@ -130,6 +132,56 @@ const pagesBySection = {
     '<section class="info"><h2>Phone</h2><p><a href="tel:+201203785127">+20 120 378 5127</a></p></section></div>' +
     links([['GitHub', github], ['LinkedIn', 'https://www.linkedin.com/in/youssef-yasser-02b447343/']])
 };
+
+function prepareGamePlayer() {
+  const player = pane.querySelector('.game-player');
+  const stage = player.querySelector('.game-stage');
+  const toggle = player.querySelector('.game-fullscreen');
+  const frame = player.querySelector('.game-frame');
+
+  function syncFullscreen() {
+    const expanded = document.fullscreenElement === stage || player.matches(':modal');
+    toggle.textContent = expanded ? 'Exit Full Screen' : 'Full Screen';
+    toggle.setAttribute('aria-pressed', String(expanded));
+  }
+
+  function exitExpandedPlayer() {
+    if (document.fullscreenElement === stage) return document.exitFullscreen();
+    if (player.matches(':modal')) {
+      player.close();
+      player.show();
+      syncFullscreen();
+      toggle.focus({ preventScroll: true });
+    }
+  }
+
+  toggle.addEventListener('click', async () => {
+    if (toggle.getAttribute('aria-pressed') === 'true') {
+      await exitExpandedPlayer();
+      return;
+    }
+    try {
+      if (!document.fullscreenEnabled) throw new Error('Fullscreen unavailable');
+      await stage.requestFullscreen();
+    } catch {
+      if (!player.isConnected) return;
+      player.close();
+      player.showModal();
+    }
+    syncFullscreen();
+    toggle.focus({ preventScroll: true });
+  });
+  player.addEventListener('fullscreenchange', syncFullscreen);
+  player.addEventListener('cancel', event => {
+    event.preventDefault();
+    exitExpandedPlayer();
+  });
+  frame.addEventListener('load', () => {
+    frame.contentDocument?.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && player.matches(':modal')) exitExpandedPlayer();
+    });
+  });
+}
 
 function render(focus = false) {
   const route = location.hash.slice(1);
@@ -146,6 +198,7 @@ function render(focus = false) {
   back.setAttribute('aria-label', backLabel);
   back.title = backLabel;
   pane.innerHTML = project ? projectPage(project) : pagesBySection[section]();
+  if (section === 'storm-core') prepareGamePlayer();
   pane.scrollTop = 0;
   document.querySelectorAll('[data-tab], .dock [data-route]').forEach(link => {
     if ((link.dataset.tab ?? link.dataset.route) === (section === 'storm-core' ? 'games' : section)) link.setAttribute('aria-current', 'page');

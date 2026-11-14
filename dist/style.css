@@ -122,10 +122,35 @@ h1 { font-size: clamp(1.9rem, 3.2vw, 3.05rem); letter-spacing: -.06em; line-heig
 .game-feature-copy .linkbar a { background: #a7f7ef; color: #102638; }
 .game-art { position: absolute; z-index: -1; inset: 0; opacity: .75; background: radial-gradient(ellipse at 86% 50%,#66f5ed4f,transparent 34%),radial-gradient(ellipse at 77% 7%,#7f97f451,transparent 32%); }
 .game-art span { position: absolute; inset: 16% 9% auto auto; width: 135px; aspect-ratio: 1; border: 2px solid #93ffe8; border-radius: 50%; box-shadow: 0 0 24px #65e4e7, inset 0 0 20px #65e4e7, 0 0 0 14px #8bf0ff24, 0 0 0 30px #8bf0ff19; transform: rotate(-25deg) scaleY(.65); }
-.game-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 9px; }
+.game-player { position: static; width: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; box-shadow: none; border-radius: 0; background: transparent; color: inherit; }
+.game-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 9px; }
 .game-navigation h1 { font-size: clamp(1.3rem, 3vw, 1.75rem); }
-.game-navigation a { color: var(--blue); font-size: .8rem; font-weight: 730; }
+.game-navigation a, .game-fullscreen { display: inline-flex; align-items: center; min-height: 44px; font-size: .78rem; font-weight: 730; }
+.game-navigation a { color: var(--blue); }
+.game-fullscreen { margin-left: auto; padding: 0 10px; border: 1px solid #b9c8e5; border-radius: 8px; background: #edf2ff; color: #183b9a; }
 .game-frame { display: block; width: 100%; height: clamp(415px, calc(100svh - 340px), 650px); border: 0; border-radius: 12px; background: #091429; }
+.game-player:modal, .game-stage:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-height: none;
+  overflow: hidden;
+  background: #091429;
+  color: #eef8ff;
+}
+.game-player:modal .game-stage, .game-stage:fullscreen {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+}
+.game-player:modal .game-navigation, .game-stage:fullscreen .game-navigation {
+  margin: 0;
+  padding: env(safe-area-inset-top, 0px) max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid #233b61;
+}
+.game-player:modal .game-navigation a, .game-stage:fullscreen .game-navigation a { color: #a7f7ef; }
+.game-player:modal .game-frame, .game-stage:fullscreen .game-frame { height: 100%; min-height: 0; border-radius: 0; }
 .desktop-caption { position: absolute; bottom: 30px; left: 26px; display: grid; color: #f3f5ff; font-size: .78rem; line-height: 1.5; pointer-events: none; }
 .desktop-caption span { opacity: .82; font-size: .7rem; }
 .detail-label { color: var(--blue); font-size: .78rem; font-weight: 750; margin-bottom: 6px; }

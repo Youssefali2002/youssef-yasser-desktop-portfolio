@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; }
 [hidden] { display: none !important; }
-.arcade { display: grid; grid-template-rows: auto minmax(0,1fr) auto; height: 100dvh; min-height: 340px; }
+.arcade { display: grid; grid-template-rows: auto minmax(0,1fr) auto; height: 100dvh; }
 .hud, footer { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding: 10px clamp(8px,3vw,22px); background: #0d1a32; }
 .hud div { display: grid; gap: 4px; }
 .hud div:nth-child(2) { width: min(34%,240px); }
