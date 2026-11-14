@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#141b54">
+  <meta name="description" content="Explore Youssef Yasser Ismail’s software projects, technical skills and experience in an interactive desktop portfolio.">
+  <title>Youssef Yasser Ismail | Portfolio</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./desktop.js"></script>
+</head>
+<body>
+  <header class="menubar">
+    <a class="brand" href="#projects"><span class="brand-icon" aria-hidden="true">Y</span> Youssef Yasser</a>
+    <div class="menu-tools">
+      <button type="button" data-action="search" class="menu-search"><span class="search-icon" aria-hidden="true"></span> <span>Search</span> <kbd>⌘ K</kbd></button>
+      <span class="clock"><span aria-hidden="true"></span> <time id="clock"></time></span>
+    </div>
+  </header>
+
+  <main class="desktop" data-theme="blue">
+    <div class="wallpaper" aria-hidden="true"></div>
+    <canvas class="stars" aria-hidden="true"></canvas>
+    <div class="desktop-files" aria-label="Desktop shortcuts">
+      <button type="button" data-route="projects"><span class="folder-icon" aria-hidden="true"></span>Projects</button>
+      <button type="button" data-route="skills"><span class="folder-icon" aria-hidden="true"></span>Tech Stack</button>
+      <button type="button" data-route="look"><span class="folder-icon" aria-hidden="true"></span>Look</button>
+      <button type="button" data-route="zad-al-qulub"><span class="folder-icon" aria-hidden="true"></span>Zad Al-Qulub</button>
+      <button type="button" data-route="about"><span class="file-icon" aria-hidden="true">≡</span>About Me</button>
+    </div>
+    <section class="window" id="finder" aria-label="Portfolio Finder">
+      <header class="titlebar">
+        <div class="traffic">
+          <button class="close" type="button" data-action="close" aria-label="Close window" title="Close window">×</button>
+          <button class="minimize" type="button" data-action="minimize" aria-label="Minimize window" title="Minimize window">−</button>
+          <button class="maximize" type="button" data-action="maximize" aria-label="Expand window" title="Expand window" aria-pressed="false">↗</button>
+        </div>
+        <div class="breadcrumbs"><button type="button" id="back" aria-label="Back to projects" title="Back to projects">‹</button><span>Finder</span><span aria-hidden="true">/</span><strong id="path-name">Projects</strong></div>
+        <button type="button" class="finder-search" data-action="search"><span class="search-icon" aria-hidden="true"></span> <span>Search projects</span></button>
+      </header>
+      <div class="workspace">
+        <aside class="sidebar">
+          <div class="profile"><span class="profile-icon" aria-hidden="true">YY</span><div><strong>Youssef Ismail</strong><span>Full-Stack Engineer</span></div></div>
+          <nav aria-label="Portfolio sections">
+            <p>Library</p>
+            <a href="#projects" data-tab="projects"><i aria-hidden="true">▦</i> Projects</a>
+            <a href="#skills" data-tab="skills"><i aria-hidden="true">⌘</i> Tech Stack</a>
+            <a href="#about" data-tab="about"><i aria-hidden="true">≡</i> About Me</a>
+            <a href="#contact" data-tab="contact"><i aria-hidden="true">↗</i> Contact</a>
+          </nav>
+          <a class="original" href="https://youssefali2002.github.io/youssef-yasser-portfolio/">Classic portfolio <span aria-hidden="true">↗</span></a>
+        </aside>
+        <div class="pane" id="pane" tabindex="-1"></div>
+      </div>
+      <footer class="statusbar"><span id="status"></span><span>Cairo, Egypt</span></footer>
+    </section>
+
+    <div class="desktop-caption" aria-hidden="true"><strong>Youssef Yasser Ismail</strong><span>Software engineering portfolio</span></div>
+    <nav class="dock" aria-label="Quick access">
+      <button type="button" data-route="projects"><span class="dock-icon projects-icon" aria-hidden="true">◫</span><span>Projects</span></button>
+      <button type="button" data-route="skills"><span class="dock-icon skills-icon" aria-hidden="true">⌘</span><span>Tech Stack</span></button>
+      <button type="button" data-route="about"><span class="dock-icon about-icon" aria-hidden="true">≡</span><span>About</span></button>
+      <button type="button" data-route="contact"><span class="dock-icon contact-icon" aria-hidden="true">✉</span><span>Contact</span></button>
+      <a class="dock-external" href="https://github.com/Youssefali2002"><span class="dock-icon github-icon" aria-hidden="true">&lt;/&gt;</span><span>GitHub</span></a>
+    </nav>
+    <noscript><p class="noscript">Open the <a href="https://youssefali2002.github.io/youssef-yasser-portfolio/">classic portfolio</a> to browse projects without JavaScript.</p></noscript>
+  </main>
+
+  <dialog id="search" aria-labelledby="search-title">
+    <div class="dialog-header"><h2 id="search-title">Search projects</h2><button type="button" data-action="dismiss" aria-label="Close search">×</button></div>
+    <label class="sr-only" for="query">Project or technology</label>
+    <input id="query" type="search" placeholder="Try React, Quran, or dashboard…" autocomplete="off">
+    <div id="search-results"></div>
+  </dialog>
+  <dialog id="image-viewer" aria-labelledby="image-title">
+    <div class="dialog-header"><h2 id="image-title">Screenshot</h2><button type="button" data-action="dismiss" aria-label="Close screenshot">×</button></div>
+    <img alt="">
+  </dialog>
+</body>
+</html>
