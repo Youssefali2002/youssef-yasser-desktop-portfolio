@@ -5,6 +5,18 @@ const pages = 'https://youssefali2002.github.io';
 const classic = pages + '/youssef-yasser-portfolio';
 const sections = { projects: 'Projects', skills: 'Tech Stack', about: 'About Me', contact: 'Contact' };
 
+const vercelDemos = {
+  'Bondi-Bootstrap5': 'bondi-bootstrap5',
+  'github-repo-finder': 'github-repo-finder-six',
+  'Hangman-Game': 'hangman-game-one-neon',
+  'Kasper-Creative-Design': 'kasper-creative-design',
+  NovaDesigns: 'novadesigns-ochre',
+  'vanilla-wordle-clone': 'vanilla-wordle-clone',
+  'vibe-store': 'vibe-store-khaki',
+  VisionOne: 'visionone-indol',
+  YoussefUI: 'youssefui'
+};
+
 const publishedProjects = [
   ['retail', 'Product & Inventory Management', 'Youssef-CRUDS-App', 'Bilingual dashboard for product records, stock tracking, charts, search filters, and CSV import and export.', ['JavaScript', 'Charts', 'CSV'], 'retail-preview.webp'],
   ['vanilla-wordle-clone', 'Wordle-inspired Game', 'vanilla-wordle-clone', 'Keyboard navigation, guess validation, hints, and game state in vanilla JavaScript.', ['JavaScript', 'DOM', 'Game state']],
@@ -19,7 +31,10 @@ const publishedProjects = [
 ].map(([id, name, repo, summary, stack, image]) => ({
   id, name, summary, stack, category: 'Web project',
   images: [[image ?? 'project-previews/' + id + '.webp', name + ' preview']],
-  links: [['Live demo', pages + '/' + repo + '/'], ['Source code', github + '/' + repo]]
+  links: [
+    ['Live demo', vercelDemos[repo] ? 'https://' + vercelDemos[repo] + '.vercel.app/' : pages + '/' + repo + '/'],
+    ['Source code', github + '/' + repo]
+  ]
 }));
 
 const featured = [
@@ -115,7 +130,7 @@ function render(focus = false) {
   finder.hidden = false;
   desktop.dataset.theme = project?.theme ?? 'blue';
   document.querySelector('#path-name').textContent = name;
-  document.title = name + ' | Youssef Yasser Ismail';
+  document.title = section === 'projects' && !project ? 'Youssef Yasser Portfolio' : name + ' | Youssef Yasser Portfolio';
   document.querySelector('#status').textContent = project ? project.category : section === 'projects' ? allProjects.length + ' projects' : name;
   back.disabled = !project && section === 'projects';
   pane.innerHTML = project ? projectPage(project) : pagesBySection[section]();

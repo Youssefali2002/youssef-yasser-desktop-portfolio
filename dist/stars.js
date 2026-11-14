@@ -3,120 +3,118 @@ const desktop = canvas.parentElement;
 const context = canvas.getContext('2d');
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const colors = {
-  blue: ['#d7ecff', '#83cfff', '#afa7ff'],
-  rose: ['#ffdae8', '#ffa5be', '#ffcf9d'],
-  emerald: ['#c4ffdd', '#7cebc1', '#ffe49a'],
-  violet: ['#f0dcff', '#bc9dff', '#a6c4ff']
+  blue: ['#c7dcff', '#80bfff', '#b79aff', '#f2d194'],
+  rose: ['#ffc6dc', '#f08dbb', '#c9a0ff', '#ffd494'],
+  emerald: ['#baf9de', '#6adcbc', '#9ad9ec', '#ffe09a'],
+  violet: ['#ead7ff', '#a79aff', '#89baff', '#ffc4df']
 };
 
 if (context) {
   let width = 0;
   let height = 0;
-  let frame = 0;
-  let lastSpark = 0;
-  let previousTheme = desktop.dataset.theme;
   let stars = [];
-  let sparks = [];
+  let frame = 0;
+  let previous = 0;
+  const pointer = { x: 0, y: 0, time: -Infinity };
   const random = (min, max) => min + Math.random() * (max - min);
 
-  function drawStar(x, y, size, color, alpha, glow) {
-    context.globalAlpha = alpha;
-    context.fillStyle = color;
-    if (glow) {
-      context.shadowBlur = size * 4;
-      context.shadowColor = color;
-      context.beginPath();
-      context.moveTo(x, y - size * 2);
-      context.lineTo(x + size * .42, y - size * .42);
-      context.lineTo(x + size * 1.45, y);
-      context.lineTo(x + size * .42, y + size * .42);
-      context.lineTo(x, y + size * 2);
-      context.lineTo(x - size * .42, y + size * .42);
-      context.lineTo(x - size * 1.45, y);
-      context.lineTo(x - size * .42, y - size * .42);
-      context.fill();
-      context.shadowBlur = 0;
-    } else {
-      context.beginPath();
-      context.arc(x, y, size, 0, Math.PI * 2);
-      context.fill();
-    }
-  }
-
   function draw(now) {
-    frame = 0;
-    const theme = desktop.dataset.theme;
-    const palette = colors[theme];
     const reduced = motion.matches;
-    if (theme !== previousTheme) {
-      previousTheme = theme;
-      sparks = [];
-    }
+    const elapsed = previous ? Math.min((now - previous) / 1000, .034) : 1 / 60;
+    previous = now;
+    const following = 1 - Math.exp(-elapsed * 7);
+    const reach = Math.min(310, width * .62);
+    const intensity = reduced ? 0 : Math.max(0, 1 - (now - pointer.time) / 1150);
+    const palette = colors[desktop.dataset.theme] ?? colors.blue;
+    let moving = intensity > 0;
     context.clearRect(0, 0, width, height);
-    stars.forEach(star => {
-      const alpha = reduced ? .65 : .56 + .34 * Math.sin(now / star.speed + star.phase);
-      drawStar(star.x, star.y, star.size, palette[star.color], alpha, star.glow);
-    });
-    if (!reduced) {
-      sparks = sparks.filter(spark => now - spark.start < spark.life);
-      for (const spark of sparks) {
-        const age = (now - spark.start) / spark.life;
-        drawStar(spark.x + spark.dx * age, spark.y + spark.dy * age, spark.size * (1 - age * .55), palette[spark.color], (1 - age) * .94, true);
-      }
+    context.lineCap = 'round';
+
+    for (const star of stars) {
+      const dx = star.x - pointer.x;
+      const dy = star.y - pointer.y;
+      const distance = Math.hypot(dx, dy);
+      const strength = Math.max(0, 1 - distance / reach) ** 1.7 * intensity;
+      const angle = strength * 1.7;
+      const cosine = Math.cos(angle);
+      const sine = Math.sin(angle) * star.orbit;
+      const ripple = strength * 27 * Math.sin(distance * .065 - now * .006);
+      const scale = 1 + ripple / Math.max(distance, 18);
+      const targetX = (dx * cosine - dy * sine) * scale - dx;
+      const targetY = (dx * sine + dy * cosine) * scale - dy;
+
+      star.offsetX = reduced ? 0 : star.offsetX + (targetX - star.offsetX) * following;
+      star.offsetY = reduced ? 0 : star.offsetY + (targetY - star.offsetY) * following;
+      if (Math.abs(star.offsetX) + Math.abs(star.offsetY) > .1) moving = true;
+
+      const x = star.x + star.offsetX;
+      const y = star.y + star.offsetY;
+      const length = star.length + strength * 8;
+      const direction = star.angle + angle + strength * Math.atan2(dy, dx);
+      const endX = Math.cos(direction) * length;
+      const endY = Math.sin(direction) * length;
+      context.globalAlpha = Math.min(.92, star.opacity + strength * .58);
+      context.strokeStyle = palette[star.color];
+      context.lineWidth = star.weight;
+      context.beginPath();
+      context.moveTo(x - endX * .5, y - endY * .5);
+      context.lineTo(x + endX * .5, y + endY * .5);
+      context.stroke();
     }
+
     context.globalAlpha = 1;
-    if (!reduced && !document.hidden) frame = requestAnimationFrame(draw);
+    frame = moving && !reduced && !document.hidden ? requestAnimationFrame(draw) : 0;
   }
 
   function refresh() {
     cancelAnimationFrame(frame);
     frame = 0;
+    previous = 0;
     if (!document.hidden) draw(performance.now());
   }
 
   function resize() {
-    const bounds = desktop.getBoundingClientRect();
-    width = bounds.width;
-    height = bounds.height;
-    const ratio = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.ceil(width * ratio);
-    canvas.height = Math.ceil(height * ratio);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const count = width > 740 ? 140 : 50;
-    stars = Array.from({ length: count }, (_, i) => {
-      const glow = i % 5 === 0;
-      const edge = width > 740 && i < 45;
-      const x = edge && i % 2 ? random(width * .87, width - 6) : edge ? random(6, width * .13) : random(6, width - 6);
-      return {
-        x, y: random(4, height - 4),
-        size: glow ? random(2.2, 4.8) : random(.65, 1.7),
-        color: i % 3, glow, speed: random(550, 1400), phase: random(0, Math.PI * 2)
-      };
-    });
+    width = desktop.clientWidth;
+    height = desktop.clientHeight;
+    const pixelRatio = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.ceil(width * pixelRatio);
+    canvas.height = Math.ceil(height * pixelRatio);
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    const spacing = width < 740 ? 21 : 29;
+    stars = [];
+    for (let y = spacing / 2; y < height; y += spacing) {
+      for (let x = spacing / 2; x < width; x += spacing) {
+        stars.push({
+          x: x + random(-spacing * .45, spacing * .45),
+          y: y + random(-spacing * .45, spacing * .45),
+          length: random(.45, 2.4),
+          weight: random(.8, 1.7),
+          opacity: random(.23, .6),
+          color: Math.floor(random(0, 4)),
+          angle: random(0, Math.PI),
+          orbit: y > height * .48 ? 1 : -1,
+          offsetX: 0,
+          offsetY: 0
+        });
+      }
+    }
+    pointer.time = -Infinity;
     refresh();
   }
 
-  function emit(event, count) {
-    if (motion.matches || event.target.closest('.window, .dock')) return;
-    const now = performance.now();
-    if (count < 10 && now - lastSpark < 38) return;
-    lastSpark = now;
+  function trackPointer(event) {
+    if (motion.matches) return;
     const bounds = desktop.getBoundingClientRect();
-    for (let i = 0; i < count; i += 1) {
-      sparks.push({
-        x: event.clientX - bounds.left + random(-7, 7),
-        y: event.clientY - bounds.top + random(-7, 7),
-        dx: random(-40, 40), dy: random(-45, 22), size: random(1.4, 4.2),
-        start: now, life: random(400, 780), color: i % 3
-      });
-    }
-    if (sparks.length > 100) sparks.splice(0, sparks.length - 100);
+    pointer.x = event.clientX - bounds.left;
+    pointer.y = event.clientY - bounds.top;
+    pointer.time = performance.now();
+    if (!frame) refresh();
   }
 
   desktop.addEventListener('pointermove', event => {
-    if (event.pointerType === 'mouse') emit(event, 4);
+    if (event.pointerType !== 'touch') trackPointer(event);
   }, { passive: true });
-  desktop.addEventListener('pointerdown', event => emit(event, 12), { passive: true });
+  desktop.addEventListener('pointerdown', trackPointer, { passive: true });
   new ResizeObserver(resize).observe(desktop);
   new MutationObserver(refresh).observe(desktop, { attributes: true, attributeFilter: ['data-theme'] });
   motion.addEventListener('change', refresh);

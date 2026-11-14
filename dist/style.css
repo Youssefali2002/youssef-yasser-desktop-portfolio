@@ -31,10 +31,15 @@ kbd { border: 1px solid #b6c4ff50; border-radius: 4px; padding: 1px 4px; font-si
 .desktop[data-theme="rose"] { --sky: #2b1637; --glow: #ee93ac; --mid: #a04471; --edge: #6c447e; --pane-start: #fff0f4; --pane-end: #f5edf9; --blue: #9a3159; }
 .desktop[data-theme="emerald"] { --sky: #0d2626; --glow: #4eab82; --mid: #28765f; --edge: #6f6841; --pane-start: #e9f9f1; --pane-end: #faf6df; --blue: #106449; }
 .desktop[data-theme="violet"] { --sky: #211943; --glow: #a187f7; --mid: #6c51bb; --edge: #4749a9; --pane-start: #f3ecff; --pane-end: #ebefff; --blue: #5f42c1; }
-.wallpaper { position: absolute; z-index: -2; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 79% 88%,var(--glow),var(--mid) 22%,transparent 53%), radial-gradient(ellipse at 0% 88%,var(--edge),transparent 52%), linear-gradient(130deg,var(--sky),var(--mid)); }
-.wallpaper::before, .wallpaper::after { content: ""; position: absolute; width: 120vw; height: 44vw; border-radius: 52%; transform: rotate(-25deg); pointer-events: none; }
-.wallpaper::before { right: -47vw; bottom: -20vw; background: linear-gradient(170deg,#9faffd83,#5d5bc555 48%,#262b8a50); border-top: 2px solid #c0ccff80; box-shadow: 0 -24px 65px #b1a3ff50; }
-.wallpaper::after { left: -46vw; top: 12vw; border-bottom: 2px solid #abb2ff5c; box-shadow: 0 24px 85px #92a2ff45; background: linear-gradient(155deg,transparent 40%,#8d80f963); }
+.wallpaper {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 85% 85%, color-mix(in srgb, var(--glow) 42%, transparent), transparent 60%),
+    radial-gradient(ellipse at 0% 30%, color-mix(in srgb, var(--edge) 55%, transparent), transparent 65%),
+    linear-gradient(150deg, var(--sky) 30%, color-mix(in srgb, var(--mid) 45%, var(--sky)));
+}
 .stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 .desktop-files { position: absolute; right: 19px; top: 28px; display: grid; gap: 14px; }
 .desktop-files button { width: 92px; min-height: 72px; display: grid; justify-items: center; align-content: center; gap: 7px; color: white; border: 1px solid transparent; border-radius: 10px; background: transparent; font-size: .74rem; font-weight: 640; text-shadow: 0 1px 5px #18234e; user-select: none; }
