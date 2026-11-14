@@ -3,7 +3,7 @@ import './stars.js';
 const github = 'https://github.com/Youssefali2002';
 const pages = 'https://youssefali2002.github.io';
 const classic = pages + '/youssef-yasser-portfolio';
-const sections = { projects: 'Projects', games: 'Games', 'storm-core': 'Storm Core', skills: 'Tech Stack', about: 'About Me', contact: 'Contact' };
+const sections = { projects: 'Projects', 'selected-work': 'Selected Work', games: 'Games', 'storm-core': 'Storm Core', skills: 'Tech Stack', about: 'About Me', contact: 'Contact' };
 
 const vercelDemos = {
   'Bondi-Bootstrap5': 'bondi-bootstrap5',
@@ -95,6 +95,8 @@ const search = document.querySelector('#search');
 const query = document.querySelector('#query');
 const searchResults = document.querySelector('#search-results');
 const imageViewer = document.querySelector('#image-viewer');
+const quickLook = document.querySelector('#quick-look');
+const quickLookBody = quickLook.querySelector('.quick-look-body');
 const maximize = document.querySelector('[data-action="maximize"]');
 
 const tags = items => '<div class="chips">' + items.map(item => '<span>' + item + '</span>').join('') + '</div>';
@@ -102,13 +104,50 @@ const links = items => '<div class="linkbar">' + items.map(([label, href]) => '<
 const folder = '<span class="folder-icon small" aria-hidden="true"></span>';
 const fileRow = project => '<a class="file-row" href="#' + project.id + '">' + folder + project.name + '<span aria-hidden="true">›</span></a>';
 
+function previewButton(project) {
+  return '<button class="preview-button" type="button" data-preview="' + project.id +
+    '" aria-label="Quick Look: ' + project.name + '" title="Quick Look">' +
+    '<span aria-hidden="true">⊙</span> <span>Preview</span></button>';
+}
+
+function projectRows(projects) {
+  return projects.map(project => '<div class="project-entry">' +
+    fileRow(project) + previewButton(project) + '</div>').join('');
+}
+
+function featuredProjects() {
+  return featured.map(project => '<div class="project-preview-tile"><a class="project" href="#' + project.id +
+    '"><div class="thumb ' + (project.thumb ?? '') + '"><img alt="" src="./media/' + project.images[0][0] + '"></div>' +
+    '<div class="project-copy"><span class="category">' + project.category + '</span><div class="project-title">' +
+    folder + '<h3>' + project.name + '</h3></div></div></a>' + previewButton(project) + '</div>').join('');
+}
+
 function projectsPage() {
   return '<div class="pane-hero"><h1>Projects</h1><p>Explore software I built for the web, mobile, and desktop.</p></div>' +
-    '<div class="section-heading"><h2>Featured projects</h2></div><div class="project-grid">' +
-    featured.map(project => '<a class="project" href="#' + project.id + '"><div class="thumb ' + (project.thumb ?? '') + '"><img alt="" src="./media/' + project.images[0][0] + '"></div>' +
-      '<div class="project-copy"><span class="category">' + project.category + '</span><div class="project-title">' + folder + '<h3>' + project.name + '</h3></div></div></a>').join('') +
+    '<a class="selected-entry" href="#selected-work">' + folder +
+    '<span><strong>Selected Work</strong><small>Three projects across web, mobile, and desktop</small></span><span aria-hidden="true">›</span></a>' +
+    '<div class="section-heading"><h2>Featured projects</h2></div><div class="project-grid">' + featuredProjects() +
     '</div><div class="section-heading"><h2>More projects</h2><span>' + publishedProjects.length + ' items</span></div><div class="project-list">' +
-    publishedProjects.map(fileRow).join('') + '</div>';
+    projectRows(publishedProjects) + '</div>';
+}
+
+function openQuickLook(project, trigger) {
+  const [image, caption] = project.images[0];
+  const demo = project.links.find(([label]) => label === 'Live demo');
+  quickLook.querySelector('h2').textContent = project.name;
+  quickLookBody.innerHTML = (project.video
+    ? '<video class="quick-look-media" controls playsinline preload="metadata" poster="./media/' + image +
+      '" src="./media/' + project.video + '" aria-label="Desktop automation demo"></video>'
+    : '<img class="quick-look-media" src="./media/' + image + '" alt="' + caption + '">') +
+    '<p class="quick-look-summary">' + project.summary + '</p>' +
+    '<div class="linkbar"><a href="#' + project.id + '" data-preview-open>Open project</a>' +
+    (demo ? '<a href="' + demo[1] + '">Live demo ↗</a>' : '') + '</div>';
+  quickLook.showModal();
+  quickLook.addEventListener('close', () => {
+    if (quickLook.open) return;
+    quickLookBody.replaceChildren();
+    if (trigger.isConnected) trigger.focus({ preventScroll: true });
+  }, { once: true });
 }
 
 function projectPage(project) {
@@ -123,13 +162,15 @@ function projectPage(project) {
 
 const pagesBySection = {
   projects: projectsPage,
+  'selected-work': () => '<div class="pane-hero"><h1>Selected Work</h1><p>Operations software, an independent mobile app, and desktop automation.</p></div>' +
+    '<div class="project-grid selected-grid">' + featuredProjects() + '</div>',
   games: () => '<div class="pane-hero"><h1>Games</h1><p>Playable experiments in game logic, input, and animation.</p></div>' +
     '<section class="game-feature"><div class="game-art" aria-hidden="true"><span></span></div><div class="game-feature-copy">' +
     '<p class="detail-label">Canvas arcade game</p><h2>Storm Core</h2>' +
     '<p>Protect a glowing core from waves of falling energy. Place vortexes, chain interceptions, and beat your best score.</p>' +
     '<div class="linkbar"><a href="#storm-core">Play Storm Core <span aria-hidden="true">&nbsp;›</span></a></div></div></section>' +
     '<div class="section-heading"><h2>More games</h2></div><div class="project-list">' +
-    ['vanilla-wordle-clone', 'hangman-game'].map(id => fileRow(projectMap.get(id))).join('') + '</div>',
+    projectRows(['vanilla-wordle-clone', 'hangman-game'].map(id => projectMap.get(id))) + '</div>',
   'storm-core': () => '<dialog class="game-player" open aria-labelledby="game-title"><div class="game-stage">' +
     '<div class="game-navigation"><a href="#games">‹ Back to Games</a><h1 id="game-title">Storm Core</h1>' +
     '<button type="button" class="game-fullscreen" aria-pressed="false">Full Screen</button></div>' +
@@ -198,6 +239,7 @@ function prepareGamePlayer() {
 }
 
 let projectOpening;
+let projectReturn = 'projects';
 
 function showProjectAura(opening) {
   const bounds = wallpaper.getBoundingClientRect();
@@ -229,7 +271,9 @@ function render(focus = false) {
   document.title = section === 'projects' && !project ? 'Youssef Yasser Portfolio' : name + ' | Youssef Yasser Portfolio';
   document.querySelector('#status').textContent = project ? project.category : section === 'projects' ? allProjects.length + ' projects' : name;
   back.disabled = !project && section === 'projects';
-  const backLabel = section === 'storm-core' ? 'Back to games' : 'Back to projects';
+  const backRoute = section === 'storm-core' ? 'games' : project ? projectReturn : 'projects';
+  const backLabel = 'Back to ' + sections[backRoute];
+  back.dataset.returnRoute = backRoute;
   back.setAttribute('aria-label', backLabel);
   back.title = backLabel;
   pane.innerHTML = project ? projectPage(project) : pagesBySection[section]();
@@ -248,6 +292,8 @@ function go(route) {
 }
 
 function openProject(route, trigger, event) {
+  const from = location.hash.slice(1);
+  if (!projectMap.has(from)) projectReturn = ['selected-work', 'games'].includes(from) ? from : 'projects';
   const bounds = trigger.getBoundingClientRect();
   projectOpening = {
     route,
@@ -316,6 +362,8 @@ document.addEventListener('click', event => {
   const route = event.target.closest('[data-route]');
   const action = event.target.closest('[data-action]');
   const image = event.target.closest('[data-image]');
+  const preview = event.target.closest('[data-preview]');
+  if (preview) openQuickLook(projectMap.get(preview.dataset.preview), preview);
   if (route?.closest('.desktop-files') && event.detail > 0 && event.pointerType !== 'touch') {
     document.querySelectorAll('.desktop-files button').forEach(button => button.setAttribute('aria-pressed', String(button === route)));
   } else if (route && projectMap.has(route.dataset.route)) {
@@ -340,12 +388,13 @@ document.addEventListener('click', event => {
     imageViewer.querySelector('h2').textContent = image.dataset.caption;
     imageViewer.showModal();
   }
-  const projectLink = event.target.closest('#pane a[href^="#"], #search-results a[href^="#"]');
+  const projectLink = event.target.closest('#pane a[href^="#"], #search-results a[href^="#"], [data-preview-open]');
   if (projectLink && projectMap.has(projectLink.hash.slice(1)) &&
       !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
     event.preventDefault();
     openProject(projectLink.hash.slice(1), projectLink, event);
     if (search.open) search.close();
+    if (quickLook.open) quickLook.close();
   }
   const activeLink = event.target.closest('.brand, [data-tab]');
   if (activeLink?.hash === location.hash && finder.hidden) render(true);
@@ -357,9 +406,18 @@ document.querySelector('.desktop-files').addEventListener('dblclick', event => {
   } else if (folderButton) go(folderButton.dataset.route);
 });
 document.addEventListener('keydown', event => {
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !imageViewer.open) {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !imageViewer.open && !quickLook.open) {
     event.preventDefault();
     openSearch();
+  }
+  if (event.key === ' ' && !quickLook.open && !search.open && !imageViewer.open) {
+    const focused = document.activeElement;
+    const id = focused.matches('#pane a') ? focused.hash.slice(1) : focused.closest('.desktop-files button')?.dataset.route;
+    const project = projectMap.get(id);
+    if (project) {
+      event.preventDefault();
+      openQuickLook(project, focused);
+    }
   }
   if (event.key === 'Enter' && search.open && document.activeElement === query) {
     event.preventDefault();
@@ -367,8 +425,11 @@ document.addEventListener('keydown', event => {
   }
 });
 query.addEventListener('input', updateSearch);
-back.addEventListener('click', () => go(location.hash === '#storm-core' ? 'games' : 'projects'));
-window.addEventListener('hashchange', () => render(true));
+back.addEventListener('click', () => go(back.dataset.returnRoute));
+window.addEventListener('hashchange', () => {
+  if (quickLook.open) quickLook.close();
+  render(true);
+});
 
 const cairoTime = new Intl.DateTimeFormat('en', { timeZone: 'Africa/Cairo', weekday: 'short', hour: 'numeric', minute: '2-digit' });
 function updateClock() {

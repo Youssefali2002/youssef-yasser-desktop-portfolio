@@ -7,12 +7,15 @@
   <meta name="description" content="Explore Youssef Yasser Ismail’s software projects, technical skills and experience in an interactive desktop portfolio.">
   <title>Youssef Yasser Portfolio</title>
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./studio.css">
   <script type="module" src="./desktop.js"></script>
+  <script type="module" src="./studio.js"></script>
 </head>
 <body>
   <header class="menubar">
     <a class="brand" href="#projects"><span class="brand-icon" aria-hidden="true">Y</span> Youssef Yasser Portfolio</a>
     <div class="menu-tools">
+      <button type="button" class="studio-replay" aria-label="Replay intro" title="Replay intro"><span aria-hidden="true">↺</span><span>Replay intro</span></button>
       <button type="button" class="pulse-button" aria-label="Trigger blue background pulse" title="Trigger blue background pulse">
         <span class="pulse-icon" aria-hidden="true"></span> Pulse
       </button>
@@ -26,6 +29,7 @@
     <canvas class="stars" aria-hidden="true"></canvas>
     <div class="desktop-files" aria-label="Desktop shortcuts">
       <button type="button" data-route="projects"><span class="folder-icon" aria-hidden="true"></span>Projects</button>
+      <button type="button" data-route="selected-work"><span class="folder-icon" aria-hidden="true"></span>Selected Work</button>
       <button type="button" data-route="skills"><span class="folder-icon" aria-hidden="true"></span>Tech Stack</button>
       <button type="button" data-route="games"><span class="folder-icon" aria-hidden="true"></span>Games</button>
       <button type="button" data-route="look"><span class="folder-icon" aria-hidden="true"></span>Look</button>
@@ -48,6 +52,7 @@
           <nav aria-label="Portfolio sections">
             <p>Library</p>
             <a href="#projects" data-tab="projects"><i aria-hidden="true">▦</i> Projects</a>
+            <a href="#selected-work" data-tab="selected-work"><i aria-hidden="true">☆</i> Selected Work</a>
             <a href="#games" data-tab="games"><i aria-hidden="true">✦</i> Games</a>
             <a href="#skills" data-tab="skills"><i aria-hidden="true">⌘</i> Tech Stack</a>
             <a href="#about" data-tab="about"><i aria-hidden="true">≡</i> About Me</a>
@@ -81,6 +86,37 @@
   <dialog id="image-viewer" aria-labelledby="image-title">
     <div class="dialog-header"><h2 id="image-title">Screenshot</h2><button type="button" data-action="dismiss" aria-label="Close screenshot">×</button></div>
     <img alt="">
+  </dialog>
+  <template id="studio-template">
+    <dialog class="studio" aria-label="Youssef Yasser studio introduction">
+      <div class="studio-camera">
+        <div class="studio-room">
+          <img class="studio-room-image" src="./media/studio/studio.webp" width="1672" height="941" alt="Youssef at his desk in a blue-lit studio">
+          <img class="studio-keystroke" src="./media/studio/keystroke.webp" alt="" aria-hidden="true">
+          <div class="studio-screen" aria-hidden="true">
+            <div class="studio-screen-copy">
+              <span class="studio-screen-label">SOFTWARE ENGINEER</span>
+              <strong>Youssef<br>Yasser.</strong>
+              <span class="studio-screen-state"><i></i> Portfolio workspace</span>
+            </div>
+            <img class="studio-screen-preview" src="./media/studio/workspace.webp" alt="">
+          </div>
+          <span class="studio-reflection" aria-hidden="true"></span>
+          <span class="studio-key-glow" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="studio-shade" aria-hidden="true"></div>
+      <header class="studio-header">
+        <div class="brand"><span class="brand-icon" aria-hidden="true">Y</span> Youssef Yasser</div>
+        <button class="studio-skip" type="button">Skip intro <span aria-hidden="true">&#8599;</span></button>
+      </header>
+      <div class="studio-mobile-heading"><p>SOFTWARE ENGINEER</p><p>Youssef Yasser.</p></div>
+    </dialog>
+  </template>
+
+  <dialog id="quick-look" aria-labelledby="quick-look-title">
+    <div class="dialog-header"><h2 id="quick-look-title">Quick Look</h2><button type="button" data-action="dismiss" aria-label="Close Quick Look">Ã—</button></div>
+    <div class="quick-look-body"></div>
   </dialog>
 </body>
 </html>
