@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Play Storm Core</title>
+  <link rel="stylesheet" href="./game.css">
+  <script type="module" src="./game.js"></script>
+</head>
+<body>
+  <main class="arcade">
+    <header class="hud">
+      <div><span>Wave</span><strong id="wave">1 / 5</strong></div>
+      <div><label for="health">Core integrity</label><progress id="health" value="100" max="100">100%</progress></div>
+      <div><span>Score</span><strong id="score">0</strong></div>
+      <button id="pause" type="button" disabled aria-label="Pause game">Ⅱ</button>
+    </header>
+    <div class="arena">
+      <canvas tabindex="0" aria-label="Game arena. Aim with arrow keys and deploy a vortex with Space.">
+        Storm Core needs a browser with Canvas support.
+      </canvas>
+      <section class="overlay" aria-labelledby="message">
+        <div class="panel">
+          <p class="eyebrow" id="mode">ARCADE DEFENSE</p>
+          <h1 id="message">Storm Core</h1>
+          <p id="summary">Open vortexes in the path of falling energy. Keep the core alive through five waves.</p>
+          <button id="start" type="button">Start game</button>
+          <p class="record">Best score <strong id="best">0</strong></p>
+        </div>
+      </section>
+      <span class="combo" id="combo" aria-hidden="true"></span>
+    </div>
+    <footer><span>Click or tap to deploy <span class="keyboard">· Arrow keys + Space</span></span><span id="charge">Vortex ready</span></footer>
+  </main>
+</body>
+</html>

@@ -113,6 +113,19 @@ h1 { font-size: clamp(1.9rem, 3.2vw, 3.05rem); letter-spacing: -.06em; line-heig
 .projects-icon { background: linear-gradient(#81c8ff,#3465e2); } .skills-icon { background: linear-gradient(#a79cf9,#5e4bd0); }
 .about-icon { background: linear-gradient(#f3f6ff,#c7d5f9); color: #4b5ca0; text-shadow: none; } .contact-icon { background: linear-gradient(#67a7ff,#3660d4); }
 .github-icon { background: linear-gradient(#485578,#1e2a45); font-size: .78rem; }
+.games-icon { background: linear-gradient(#7ef2ea,#277ab1 70%,#3148a2); }
+.game-feature { position: relative; isolation: isolate; overflow: hidden; margin-top: 16px; min-height: 230px; display: grid; align-items: center; border-radius: 13px; background: linear-gradient(110deg,#091529 35%,#182f60); color: #f2f8ff; }
+.game-feature-copy { padding: clamp(18px,4vw,32px); max-width: 410px; }
+.game-feature-copy .detail-label { color: #7ce5ef; }
+.game-feature-copy h2 { font-size: clamp(1.8rem,4vw,2.8rem); letter-spacing: -.045em; }
+.game-feature-copy h2 + p { margin-top: 8px; color: #cedcf3; line-height: 1.5; }
+.game-feature-copy .linkbar a { background: #a7f7ef; color: #102638; }
+.game-art { position: absolute; z-index: -1; inset: 0; opacity: .75; background: radial-gradient(ellipse at 86% 50%,#66f5ed4f,transparent 34%),radial-gradient(ellipse at 77% 7%,#7f97f451,transparent 32%); }
+.game-art span { position: absolute; inset: 16% 9% auto auto; width: 135px; aspect-ratio: 1; border: 2px solid #93ffe8; border-radius: 50%; box-shadow: 0 0 24px #65e4e7, inset 0 0 20px #65e4e7, 0 0 0 14px #8bf0ff24, 0 0 0 30px #8bf0ff19; transform: rotate(-25deg) scaleY(.65); }
+.game-navigation { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 9px; }
+.game-navigation h1 { font-size: clamp(1.3rem, 3vw, 1.75rem); }
+.game-navigation a { color: var(--blue); font-size: .8rem; font-weight: 730; }
+.game-frame { display: block; width: 100%; height: clamp(415px, calc(100svh - 340px), 650px); border: 0; border-radius: 12px; background: #091429; }
 .desktop-caption { position: absolute; bottom: 30px; left: 26px; display: grid; color: #f3f5ff; font-size: .78rem; line-height: 1.5; pointer-events: none; }
 .desktop-caption span { opacity: .82; font-size: .7rem; }
 .detail-label { color: var(--blue); font-size: .78rem; font-weight: 750; margin-bottom: 6px; }
@@ -166,7 +179,8 @@ dialog::backdrop { background: #141b4e9e; backdrop-filter: blur(4px); }
   .thumb { height: 88px; }
   .pane { padding: 13px; }
   .dock { gap: 1px; padding-inline: 5px; }
-  .dock button, .dock a { min-width: 54px; }
+  .dock button, .dock a { min-width: clamp(45px,14vw,54px); }
+  .game-art { opacity: .4; }
   .detail-media img { height: 110px; }
 }
 @media (prefers-reduced-motion: reduce) {

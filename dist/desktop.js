@@ -3,7 +3,7 @@ import './stars.js';
 const github = 'https://github.com/Youssefali2002';
 const pages = 'https://youssefali2002.github.io';
 const classic = pages + '/youssef-yasser-portfolio';
-const sections = { projects: 'Projects', skills: 'Tech Stack', about: 'About Me', contact: 'Contact' };
+const sections = { projects: 'Projects', games: 'Games', 'storm-core': 'Storm Core', skills: 'Tech Stack', about: 'About Me', contact: 'Contact' };
 
 const vercelDemos = {
   'Bondi-Bootstrap5': 'bondi-bootstrap5',
@@ -109,6 +109,15 @@ function projectPage(project) {
 
 const pagesBySection = {
   projects: projectsPage,
+  games: () => '<div class="pane-hero"><h1>Games</h1><p>Playable experiments in game logic, input, and animation.</p></div>' +
+    '<section class="game-feature"><div class="game-art" aria-hidden="true"><span></span></div><div class="game-feature-copy">' +
+    '<p class="detail-label">Canvas arcade game</p><h2>Storm Core</h2>' +
+    '<p>Protect a glowing core from waves of falling energy. Place vortexes, chain interceptions, and beat your best score.</p>' +
+    '<div class="linkbar"><a href="#storm-core">Play Storm Core <span aria-hidden="true">&nbsp;›</span></a></div></div></section>' +
+    '<div class="section-heading"><h2>More games</h2></div><div class="project-list">' +
+    ['vanilla-wordle-clone', 'hangman-game'].map(id => fileRow(projectMap.get(id))).join('') + '</div>',
+  'storm-core': () => '<div class="game-navigation"><a href="#games">‹ All games</a><h1>Storm Core</h1></div>' +
+    '<iframe class="game-frame" src="./games/storm-core/" title="Play Storm Core" allow="fullscreen"></iframe>',
   skills: () => '<div class="pane-hero"><h1>Tech Stack</h1><p>Tools I use to build interfaces, APIs, data workflows, and automated tests.</p></div><div class="info-grid">' +
     skillGroups.map(([name, items]) => '<section class="info"><h2>' + name + '</h2>' + tags(items) + '</section>').join('') + '</div>',
   about: () => '<div class="pane-hero"><h1>Youssef Yasser Ismail</h1><p>Full-Stack Software Engineer · Cairo, Egypt</p></div>' +
@@ -133,10 +142,13 @@ function render(focus = false) {
   document.title = section === 'projects' && !project ? 'Youssef Yasser Portfolio' : name + ' | Youssef Yasser Portfolio';
   document.querySelector('#status').textContent = project ? project.category : section === 'projects' ? allProjects.length + ' projects' : name;
   back.disabled = !project && section === 'projects';
+  const backLabel = section === 'storm-core' ? 'Back to games' : 'Back to projects';
+  back.setAttribute('aria-label', backLabel);
+  back.title = backLabel;
   pane.innerHTML = project ? projectPage(project) : pagesBySection[section]();
   pane.scrollTop = 0;
   document.querySelectorAll('[data-tab], .dock [data-route]').forEach(link => {
-    if ((link.dataset.tab ?? link.dataset.route) === section) link.setAttribute('aria-current', 'page');
+    if ((link.dataset.tab ?? link.dataset.route) === (section === 'storm-core' ? 'games' : section)) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
   if (focus) pane.focus();
@@ -252,7 +264,7 @@ document.addEventListener('keydown', event => {
   }
 });
 query.addEventListener('input', updateSearch);
-back.addEventListener('click', () => go('projects'));
+back.addEventListener('click', () => go(location.hash === '#storm-core' ? 'games' : 'projects'));
 window.addEventListener('hashchange', () => render(true));
 
 const cairoTime = new Intl.DateTimeFormat('en', { timeZone: 'Africa/Cairo', weekday: 'short', hour: 'numeric', minute: '2-digit' });
