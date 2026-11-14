@@ -17,6 +17,19 @@ const vercelDemos = {
   YoussefUI: 'youssefui'
 };
 
+const webProjectThemes = {
+  retail: 'emerald',
+  'vanilla-wordle-clone': 'rose',
+  'vibe-store': 'violet',
+  youssefui: 'blue',
+  novadesigns: 'rose',
+  'github-repo-finder': 'violet',
+  'hangman-game': 'emerald',
+  visionone: 'blue',
+  'bondi-bootstrap5': 'emerald',
+  'kasper-creative-design': 'blue'
+};
+
 const publishedProjects = [
   ['retail', 'Product & Inventory Management', 'Youssef-CRUDS-App', 'Bilingual dashboard for product records, stock tracking, charts, search filters, and CSV import and export.', ['JavaScript', 'Charts', 'CSV'], 'retail-preview.webp'],
   ['vanilla-wordle-clone', 'Wordle-inspired Game', 'vanilla-wordle-clone', 'Keyboard navigation, guess validation, hints, and game state in vanilla JavaScript.', ['JavaScript', 'DOM', 'Game state']],
@@ -29,7 +42,7 @@ const publishedProjects = [
   ['bondi-bootstrap5', 'Bondi Bootstrap', 'Bondi-Bootstrap5', 'Responsive landing page built with Bootstrap 5.', ['Bootstrap 5', 'CSS']],
   ['kasper-creative-design', 'Kasper Creative Design', 'Kasper-Creative-Design', 'Creative portfolio template built with HTML and CSS.', ['HTML', 'CSS']]
 ].map(([id, name, repo, summary, stack, image]) => ({
-  id, name, summary, stack, category: 'Web project',
+  id, name, summary, stack, category: 'Web project', theme: webProjectThemes[id],
   images: [[image ?? 'project-previews/' + id + '.webp', name + ' preview']],
   links: [
     ['Live demo', vercelDemos[repo] ? 'https://' + vercelDemos[repo] + '.vercel.app/' : pages + '/' + repo + '/'],
@@ -98,7 +111,7 @@ function projectsPage() {
 }
 
 function projectPage(project) {
-  return '<div class="pane-hero"><p class="detail-label">' + project.category + '</p><h1>' + project.name + '</h1></div>' +
+  return '<div class="pane-hero project-hero"><p class="detail-label">' + project.category + '</p><h1>' + project.name + '</h1></div>' +
     '<div class="details-text"><p>' + project.summary + '</p>' +
     (project.points ? '<ul>' + project.points.map(point => '<li>' + point + '</li>').join('') + '</ul>' : '') + '</div>' +
     tags(project.stack) + links(project.links) +
